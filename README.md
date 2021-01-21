@@ -10,7 +10,7 @@ This is a work in progress.
 
 ### Contents
 
-There will be an associated app with source code forked from the GBB Darp Workshop.
+There will be an associated app with source code forked from the GBB Dapr Workshop.
 
 It will also include:
 
