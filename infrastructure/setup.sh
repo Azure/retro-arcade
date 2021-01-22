@@ -6,8 +6,8 @@ export HUB_LOC=eastus
 export BRANCH_LOC=eastus
 export HUB_CLUSTER_NAME=retroarcade
 export K8S_VERSION=1.19.3
-export ADMIN_USER=<user>
-export ADMIN_PASSWD=<passwd>
+export ADMIN_USER=<Insert User ID>
+export ADMIN_PASSWD=<Insert Password>
 
 # Create Resource Group
 az group create -n $RG -l $HUB_LOC
@@ -77,40 +77,18 @@ az vm create \
 --subnet k8s-subnet \
 --image UbuntuLTS 
 
+SP_JSON=$(az ad sp create-for-rbac --skip-assignment -o json)
+APPID=$(echo $SP_JSON | jq -r .appId)
+APPPASSWD=$(echo $SP_JSON | jq -r .password)
+TENANT=$(echo $SP_JSON | jq -r .tenant)
+
+az role assignment create --assignee $APPID \
+--role "Contributor" \
+--resource-group $RG
+
 # Setup k3s main
 az vm run-command invoke \
 -g $RG \
--n k3s-main \
+-n k3s-host \
 --command-id RunShellScript \
---scripts "curl -sfL https://get.k3s.io | sh -"
-
-./node-setup.sh <AppID> "<PASSWD>" <TENANT> $RG
-
-################################################
-# After the node is up you still need to run the following
-# steps that I need to automate
-#########################################################
-
-# Install Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-# Install kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-
-# Copy the kube config file over to .kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-
-# Install Helm3
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
-
-# Login to Azure and arc connect
-az login
-az set account -s <SubID>
-sudo az connectedk8s connect --name k3s --resource-group EphRetroArcade
- 
-
-az role assignment create --assignee "<APPID>" \
---role "Contributor" \
---resource-group $RG
+--scripts "wget https://raw.githubusercontent.com/Azure/retro-arcade/infra/infrastructure/node-setup.sh; chmod +x node-setup.sh; ./node-setup.sh $APPID ""$APPPASSWD"" $TENANT $RG"
