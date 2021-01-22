@@ -6,8 +6,8 @@ export HUB_LOC=eastus
 export BRANCH_LOC=eastus
 export HUB_CLUSTER_NAME=retroarcade
 export K8S_VERSION=1.19.3
-export ADMIN_USER=<Insert User ID>
-export ADMIN_PASSWD=<Insert Password>
+export ADMIN_USER=<Insert Admin User>
+export ADMIN_PASSWD=<Insert Admin Password>
 
 # Create Resource Group
 az group create -n $RG -l $HUB_LOC
@@ -77,10 +77,16 @@ az vm create \
 --subnet k8s-subnet \
 --image UbuntuLTS 
 
-SP_JSON=$(az ad sp create-for-rbac --skip-assignment -o json)
-APPID=$(echo $SP_JSON | jq -r .appId)
-APPPASSWD=$(echo $SP_JSON | jq -r .password)
-TENANT=$(echo $SP_JSON | jq -r .tenant)
+export SP_JSON=$(az ad sp create-for-rbac --skip-assignment -o json)
+echo $SP_JSON
+export APPID=$(echo $SP_JSON | jq -r .appId)
+echo "AppID: $APPID"
+export APPPASSWD=$(echo $SP_JSON | jq -r .password)
+echo "App Psswd: $APPPASSWD"
+export TENANT=$(echo $SP_JSON | jq -r .tenant)
+echo "Tenant: $TENANT"
+
+read -t 5 -p "Pause for 10 sec while service principal propegates ..."
 
 az role assignment create --assignee $APPID \
 --role "Contributor" \
