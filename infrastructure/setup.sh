@@ -6,7 +6,8 @@ export HUB_LOC=eastus
 export BRANCH_LOC=eastus
 export HUB_CLUSTER_NAME=retroarcade
 export K8S_VERSION=1.19.3
-export ADMIN_USER=griffith
+export ADMIN_USER=<user>
+export ADMIN_PASSWD=<passwd>
 
 # Create Resource Group
 az group create -n $RG -l $HUB_LOC
@@ -69,10 +70,10 @@ az vm create \
 --resource-group $RG \
 --name k3s-host \
 --admin-username $ADMIN_USER \
+--admin-password $ADMIN_PASSWD \
 --vnet-name branch-vnet-$BRANCH_LOC \
---authentication-type ssh \
+--authentication-type password \
 --nsg-rule SSH \
---ssh-key-values @~/.ssh/id_rsa.pub \
 --subnet k8s-subnet \
 --image UbuntuLTS 
 
@@ -82,6 +83,8 @@ az vm run-command invoke \
 -n k3s-main \
 --command-id RunShellScript \
 --scripts "curl -sfL https://get.k3s.io | sh -"
+
+./node-setup.sh <AppID> "<PASSWD>" <TENANT> $RG
 
 ################################################
 # After the node is up you still need to run the following
@@ -107,3 +110,7 @@ az login
 az set account -s <SubID>
 sudo az connectedk8s connect --name k3s --resource-group EphRetroArcade
  
+
+az role assignment create --assignee "<APPID>" \
+--role "Contributor" \
+--resource-group $RG
