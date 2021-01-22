@@ -86,7 +86,7 @@ echo "App Psswd: $APPPASSWD"
 export TENANT=$(echo $SP_JSON | jq -r .tenant)
 echo "Tenant: $TENANT"
 
-read -t 5 -p "Pause for 10 sec while service principal propegates ..."
+read -t 10 -p "Pause for 10 sec while service principal propegates ..."
 
 az role assignment create --assignee $APPID \
 --role "Contributor" \
