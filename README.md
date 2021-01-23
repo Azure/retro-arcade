@@ -23,3 +23,9 @@ It will also include:
 
 Initial project. https://github.com/Azure/retro-arcade/projects/1 
 
+### Architecture Diagram
+
+![Application architecture diagram](assets/architecture.jpg)
+
+
+
