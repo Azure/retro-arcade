@@ -98,3 +98,15 @@ az vm run-command invoke \
 -n k3s-host \
 --command-id RunShellScript \
 --scripts "wget https://raw.githubusercontent.com/Azure/retro-arcade/infra/infrastructure/node-setup.sh; chmod +x node-setup.sh; ./node-setup.sh $APPID ""$APPPASSWD"" $TENANT $RG"
+
+az k8sconfiguration create \
+--cluster-name k3s \
+--cluster-type connectedClusters \
+--name steelwire \
+--repository-url https://github.com/swgriffith/clippyfunc.git \
+--resource-group $RG \
+--scope cluster \
+--operator-instance-name steelwire-config --operator-namespace steelwire-config \
+--operator-params="--git-branch master --git-readonly --git-path=manifests --sync-garbage-collection" 
+
+
